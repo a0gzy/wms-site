@@ -28,13 +28,10 @@ curl http://localhost:3000/api/items | jq '.items | length'
 
 ## Deploy
 
-```bash
-vercel link
-vercel kv create wms-items   # provisions KV_* env vars automatically
-vercel env add WYNN_API_KEY
-vercel env add CRON_SECRET
-vercel deploy --prod
-```
+1. Push to GitHub, then `vercel link` (or import on the dashboard).
+2. **Storage → Create Database → Upstash for Redis**, connect to project — populates `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` automatically.
+3. **Settings → Environment Variables**: add `WYNN_API_KEY` and `CRON_SECRET`.
+4. `vercel deploy --prod`.
 
 Vercel reads `vercel.json` and registers the cron schedule on deploy.
 
