@@ -1,7 +1,8 @@
 import { Redis } from "@upstash/redis";
-import type { ItemsPayload } from "./types";
+import type { ItemsPayload, SlimItem } from "./types";
 
-const KEY = "wms:items";
+const ITEMS_KEY = "wms:items";
+const CUSTOM_ITEMS_KEY = "wms:customItems";
 
 // Поддерживаем оба набора env vars: новая интеграция Upstash через Vercel Marketplace
 // (UPSTASH_REDIS_REST_*) и старая Vercel KV (KV_REST_API_*).
@@ -16,10 +17,20 @@ function getRedis(): Redis {
 
 export async function readItems(): Promise<ItemsPayload | null> {
   const redis = getRedis();
-  return (await redis.get<ItemsPayload>(KEY)) ?? null;
+  return (await redis.get<ItemsPayload>(ITEMS_KEY)) ?? null;
 }
 
 export async function writeItems(payload: ItemsPayload): Promise<void> {
   const redis = getRedis();
-  await redis.set(KEY, payload);
+  await redis.set(ITEMS_KEY, payload);
+}
+
+export async function readCustomItems(): Promise<SlimItem[]> {
+  const redis = getRedis();
+  return (await redis.get<SlimItem[]>(CUSTOM_ITEMS_KEY)) ?? [];
+}
+
+export async function writeCustomItems(items: SlimItem[]): Promise<void> {
+  const redis = getRedis();
+  await redis.set(CUSTOM_ITEMS_KEY, items);
 }
