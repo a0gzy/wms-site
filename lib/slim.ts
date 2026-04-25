@@ -7,6 +7,7 @@ const ALLOWED: ReadonlySet<Tier> = new Set([
   "legendary",
   "mythic",
   "fabled",
+  "custom",
 ]);
 
 function normalizeTier(raw: unknown): Tier {

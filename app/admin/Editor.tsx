@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { SlimItem, Tier } from "@/lib/types";
 
-const TIERS: Tier[] = ["normal", "unique", "rare", "legendary", "mythic", "fabled"];
+const TIERS: Tier[] = ["normal", "unique", "rare", "legendary", "mythic", "fabled", "custom"];
 
 type Draft =
   | {

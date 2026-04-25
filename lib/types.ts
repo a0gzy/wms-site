@@ -1,4 +1,4 @@
-export type Tier = "normal" | "unique" | "rare" | "legendary" | "mythic" | "fabled";
+export type Tier = "normal" | "unique" | "rare" | "legendary" | "mythic" | "fabled" | "custom";
 
 export type AttributeIcon = {
   format: "attribute";

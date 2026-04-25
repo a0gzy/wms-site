@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const TIERS: ReadonlyArray<Tier> = [
-  "normal", "unique", "rare", "legendary", "mythic", "fabled",
+  "normal", "unique", "rare", "legendary", "mythic", "fabled", "custom",
 ];
 
 function validate(raw: unknown): SlimItem[] | string {
