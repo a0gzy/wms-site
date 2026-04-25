@@ -14,6 +14,6 @@ export async function POST() {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
   revalidatePath("/api/items");
-  revalidateTag("items", "default");
+  revalidateTag("items", "max");
   return NextResponse.json({ ok: true, at: new Date().toISOString() });
 }
