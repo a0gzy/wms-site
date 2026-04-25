@@ -169,24 +169,6 @@ export function Editor({ initialItems }: { initialItems: SlimItem[] }) {
     }
   }
 
-  async function refreshCdn() {
-    setPending(true);
-    setStatus(null);
-    try {
-      const res = await fetch("/api/admin/refresh-cdn", { method: "POST" });
-      const j = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setStatus({ kind: "err", text: j?.error ?? `HTTP ${res.status}` });
-        return;
-      }
-      setStatus({ kind: "ok", text: "CDN cache invalidated" });
-    } catch (err) {
-      setStatus({ kind: "err", text: String(err) });
-    } finally {
-      setPending(false);
-    }
-  }
-
   async function logout() {
     await fetch("/api/admin/logout", { method: "POST" });
     window.location.reload();
@@ -218,14 +200,6 @@ export function Editor({ initialItems }: { initialItems: SlimItem[] }) {
           className="rounded border border-neutral-700 bg-panel px-3 py-1.5 text-sm hover:border-accent disabled:opacity-40"
         >
           ⟳ Refresh DB
-        </button>
-        <button
-          onClick={refreshCdn}
-          disabled={pending}
-          title="Invalidate the /api/items CDN cache so clients see fresh data"
-          className="rounded border border-neutral-700 bg-panel px-3 py-1.5 text-sm hover:border-accent disabled:opacity-40"
-        >
-          ⟳ Refresh CDN
         </button>
 
         <button

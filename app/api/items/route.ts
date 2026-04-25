@@ -50,7 +50,8 @@ export async function GET() {
 
   return NextResponse.json(out, {
     headers: {
-      "Cache-Control": "public, max-age=43200, s-maxage=43200, stale-while-revalidate=86400",
+      // 10 минут на CDN — после Save в админке предметы появятся быстро.
+      "Cache-Control": "public, max-age=600, s-maxage=600, stale-while-revalidate=3600",
     },
   });
 }
