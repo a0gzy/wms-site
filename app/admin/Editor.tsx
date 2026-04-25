@@ -151,6 +151,42 @@ export function Editor({ initialItems }: { initialItems: SlimItem[] }) {
     }
   }
 
+  async function refreshItems() {
+    setPending(true);
+    setStatus(null);
+    try {
+      const res = await fetch("/api/admin/refresh-items", { method: "POST" });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setStatus({ kind: "err", text: j?.error ?? `HTTP ${res.status}` });
+        return;
+      }
+      setStatus({ kind: "ok", text: `Wynn DB refreshed — ${j.count} items` });
+    } catch (err) {
+      setStatus({ kind: "err", text: String(err) });
+    } finally {
+      setPending(false);
+    }
+  }
+
+  async function refreshCdn() {
+    setPending(true);
+    setStatus(null);
+    try {
+      const res = await fetch("/api/admin/refresh-cdn", { method: "POST" });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setStatus({ kind: "err", text: j?.error ?? `HTTP ${res.status}` });
+        return;
+      }
+      setStatus({ kind: "ok", text: "CDN cache invalidated" });
+    } catch (err) {
+      setStatus({ kind: "err", text: String(err) });
+    } finally {
+      setPending(false);
+    }
+  }
+
   async function logout() {
     await fetch("/api/admin/logout", { method: "POST" });
     window.location.reload();
@@ -172,6 +208,26 @@ export function Editor({ initialItems }: { initialItems: SlimItem[] }) {
         >
           {pending ? "Saving…" : `Save${dirty ? " *" : ""}`}
         </button>
+
+        <div className="mx-2 h-6 w-px bg-neutral-700" />
+
+        <button
+          onClick={refreshItems}
+          disabled={pending}
+          title="Re-fetch Wynncraft DB now (same as cron at 00:00 UTC)"
+          className="rounded border border-neutral-700 bg-panel px-3 py-1.5 text-sm hover:border-accent disabled:opacity-40"
+        >
+          ⟳ Refresh DB
+        </button>
+        <button
+          onClick={refreshCdn}
+          disabled={pending}
+          title="Invalidate the /api/items CDN cache so clients see fresh data"
+          className="rounded border border-neutral-700 bg-panel px-3 py-1.5 text-sm hover:border-accent disabled:opacity-40"
+        >
+          ⟳ Refresh CDN
+        </button>
+
         <button
           onClick={logout}
           className="ml-auto rounded border border-neutral-700 bg-panel px-3 py-1.5 text-sm text-neutral-400 hover:text-neutral-200"
