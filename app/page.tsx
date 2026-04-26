@@ -114,7 +114,7 @@ export default function Home() {
       <section className="mx-auto max-w-5xl px-6 pb-20">
         <div className="overflow-hidden rounded-2xl mc-panel">
           <Image
-            src="/screenshot.png"
+            src="/gui.png"
             alt="In-game screenshot of the search GUI"
             width={1280}
             height={720}
