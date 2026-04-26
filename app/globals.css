@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  color-scheme: dark;
+}
+
 html, body {
   background: #0b0d10;
   color: #e8e8e8;
@@ -9,3 +13,25 @@ html, body {
 
 a { color: #ffcc33; }
 a:hover { text-decoration: underline; }
+
+/* мягкое мерцание hero-фона */
+@keyframes auraDrift {
+  0%   { transform: translate3d(-3%, -2%, 0) scale(1); }
+  50%  { transform: translate3d(3%, 2%, 0) scale(1.05); }
+  100% { transform: translate3d(-3%, -2%, 0) scale(1); }
+}
+.aura {
+  animation: auraDrift 18s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* стиль панели «как в моде» */
+.mc-panel {
+  background: #15181d;
+  border: 1px solid #2c313a;
+  box-shadow: 0 10px 40px -20px rgba(255, 204, 51, 0.08);
+}
+
+.mc-pixel {
+  image-rendering: pixelated;
+}

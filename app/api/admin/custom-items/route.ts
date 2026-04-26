@@ -10,8 +10,17 @@ const TIERS: ReadonlyArray<Tier> = [
   "normal", "unique", "rare", "legendary", "mythic", "fabled", "custom",
 ];
 
+// Жёсткие лимиты — защита от DoS / мусорных записей.
+const MAX_ITEMS = 1000;
+const MAX_NAME = 64;
+const MAX_ID = 64;
+const MAX_HASH = 128;
+const MAX_CMD = 16_777_215; // тот же диапазон что у MC custom_model_data
+
 function validate(raw: unknown): SlimItem[] | string {
   if (!Array.isArray(raw)) return "expected an array of items";
+  if (raw.length > MAX_ITEMS) return `too many items (max ${MAX_ITEMS})`;
+
   const out: SlimItem[] = [];
   const seen = new Set<string>();
   for (const [idx, entry] of raw.entries()) {
@@ -21,10 +30,10 @@ function validate(raw: unknown): SlimItem[] | string {
     if (typeof e.displayName !== "string" || e.displayName.trim() === "") {
       return `item #${idx}: displayName required`;
     }
-    if (seen.has(e.displayName)) {
-      return `duplicate displayName: ${e.displayName}`;
-    }
-    seen.add(e.displayName);
+    const name = e.displayName.trim();
+    if (name.length > MAX_NAME) return `item #${idx}: displayName > ${MAX_NAME} chars`;
+    if (seen.has(name)) return `duplicate displayName: ${name}`;
+    seen.add(name);
 
     if (typeof e.tier !== "string" || !TIERS.includes(e.tier as Tier)) {
       return `item #${idx}: tier must be one of ${TIERS.join(", ")}`;
@@ -37,23 +46,35 @@ function validate(raw: unknown): SlimItem[] | string {
       if (typeof icon.value !== "string" || icon.value.trim() === "") {
         return `item #${idx}: skin icon needs string value`;
       }
-      out.push({
-        displayName: e.displayName.trim(),
-        tier: e.tier as Tier,
-        icon: { format: "skin", value: icon.value.trim() },
-      });
+      const value = icon.value.trim();
+      if (value.length > MAX_HASH) return `item #${idx}: skin hash > ${MAX_HASH} chars`;
+      out.push({ displayName: name, tier: e.tier as Tier, icon: { format: "skin", value } });
     } else if (icon.format === "attribute") {
       const v = icon.value as Record<string, unknown> | undefined;
       if (!v || typeof v !== "object" || typeof v.id !== "string" || v.id.trim() === "") {
         return `item #${idx}: attribute icon needs value.id`;
       }
       const id = v.id.trim();
-      const cmd = typeof v.customModelData === "number" ? v.customModelData : undefined;
+      if (id.length > MAX_ID) return `item #${idx}: icon.value.id > ${MAX_ID} chars`;
+
+      let customModelData: number | undefined;
+      if (v.customModelData !== undefined) {
+        if (
+          typeof v.customModelData !== "number" ||
+          !Number.isInteger(v.customModelData) ||
+          v.customModelData < 0 ||
+          v.customModelData > MAX_CMD
+        ) {
+          return `item #${idx}: customModelData must be an integer in [0, ${MAX_CMD}]`;
+        }
+        customModelData = v.customModelData;
+      }
+
       out.push({
-        displayName: e.displayName.trim(),
+        displayName: name,
         tier: e.tier as Tier,
-        icon: cmd !== undefined
-          ? { format: "attribute", value: { id, customModelData: cmd } }
+        icon: customModelData !== undefined
+          ? { format: "attribute", value: { id, customModelData } }
           : { format: "attribute", value: { id } },
       });
     } else {

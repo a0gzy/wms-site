@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ADMIN_COOKIE } from "@/lib/admin";
+import { ADMIN_COOKIE, safeEqual } from "@/lib/admin";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -13,12 +13,14 @@ export async function POST(req: Request) {
   let secret = "";
   try {
     const body = (await req.json()) as { secret?: unknown };
-    if (typeof body?.secret === "string") secret = body.secret;
+    if (typeof body?.secret === "string" && body.secret.length <= 256) {
+      secret = body.secret;
+    }
   } catch {
     return NextResponse.json({ error: "bad request" }, { status: 400 });
   }
 
-  if (secret !== expected) {
+  if (!safeEqual(secret, expected)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
